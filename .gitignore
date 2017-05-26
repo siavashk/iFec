@@ -108,3 +108,6 @@ data/*
 
 # output folder
 output/*
+
+# temporary junk
+temp.py
