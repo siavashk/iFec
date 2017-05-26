@@ -4,7 +4,7 @@ import io
 from PIL import Image
 
 def parseArgs():
-    parser = argparse.ArgumentParser(description='Display JPEG Series')
+    parser = argparse.ArgumentParser(description='Display a series of jpeg images')
     parser.add_argument('--binary', dest='binary', type=str)
     parser.add_argument('--meta', dest='meta', type=str)
     return parser.parse_args()

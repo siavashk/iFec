@@ -1,16 +1,17 @@
 import argparse
 from IO import JPEGSeriesReader
-from Core import pad, unpad, RaptorQEncode, RaptorQDecode
+from Core import pad, unpad, RaptorQEncode, RaptorQDecode, UniformLossyChannel
 import sys
 
 def parseArgs():
-    parser = argparse.ArgumentParser(description='Encode and decode a series of jpeg images')
+    parser = argparse.ArgumentParser(description='Simulate encoded data transmitted over a lossy channel')
     parser.add_argument('--binary', dest='binary', type=str)
     parser.add_argument('--meta', dest='meta', type=str)
     parser.add_argument('--min', dest='minSymbolSize', type=int)
     parser.add_argument('--size', dest='symbolSize', type=int)
     parser.add_argument('--overhead', dest='overhead', type=float)
     parser.add_argument('--memory', dest='memory', type=int)
+    parser.add_argument('--drop', dest='drop', type=float)
     return parser.parse_args()
 
 def main():
@@ -24,13 +25,14 @@ def main():
     for index, data in enumerate(series):
         encodedData = RaptorQEncode(data, args.minSymbolSize, args.symbolSize, args.memory, args.overhead)
 
-        # Received data
-        symbols    = encodedData['symbols']
-        data_len   = encodedData['data_bytes']
-        oti_common = encodedData['oti_common']
-        oti_scheme = encodedData['oti_scheme']
+        transmitted = encodedData['symbols']
+        data_len    = encodedData['data_bytes']
+        oti_common  = encodedData['oti_common']
+        oti_scheme  = encodedData['oti_scheme']
 
-        decodedData = RaptorQDecode(symbols, data_len, oti_common, oti_scheme)
+        received = UniformLossyChannel(transmitted, args.drop)
+
+        decodedData = RaptorQDecode(received, data_len, oti_common, oti_scheme)
         if index % 10 == 0 and index != 0:
             if index % 100 == 0:
                 sys.stdout.write('|\n ')
